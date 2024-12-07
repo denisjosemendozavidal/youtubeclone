@@ -1,21 +1,31 @@
-import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View, ScrollView, SafeAreaView } from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
 import Header from "../components/Header";
+import Footer from "../components/Footer";
+import VideoCard from "../components/VideoCards";
 
 export default function HomeScreen() {
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Header />
-      <Text>Home Screen Component</Text>
-    </View>
+
+      <ScrollView style={styles.content}>
+        <VideoCard />
+        <VideoCard />
+        <VideoCard />
+      </ScrollView>
+      <Footer />
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
+    backgroundColor: "#0a0744", // Dark blue background from image
+  },
+  content: {
+    flex: 1,
+    marginBottom: 60, // Space for footer
   },
 });
