@@ -17,94 +17,82 @@ export default function VideoPlayingFullScreen({
   onBackPress,
   isFullscreen,
 }) {
-  // State management for video playback
   const [isPlaying, setIsPlaying] = useState(true);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
   const videoRef = useRef(null);
 
-  // Handle video press to toggle controls
   const handleVideoPress = () => {
     onVideoPress();
   };
 
-  // Handle YouTube video state changes
   const onStateChange = useCallback((state) => {
     if (state === "ended") {
       setIsPlaying(false);
     }
   }, []);
 
-  // Format time display (e.g., converts 63 seconds to "1:03")
-  const formatTime = (timeInSeconds) => {
-    const minutes = Math.floor(timeInSeconds / 60);
-    const seconds = Math.floor(timeInSeconds % 60);
-    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
-  };
-
-  // Toggle video play/pause state
-  const togglePlayPause = async () => {
-    setIsPlaying(!isPlaying);
-  };
-
-  // Get screen dimensions for video sizing
+  // Get screen dimensions
   const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } =
     Dimensions.get("window");
+
+  // Calculate video dimensions for landscape mode
+  const videoHeight = SCREEN_HEIGHT;
+  const videoWidth = (videoHeight * 16) / 9; // Maintain 16:9 aspect ratio
 
   const renderVideoPlayer = () => {
     if (video.platform === "youtube") {
       return (
-        <YoutubePlayer
-          height={SCREEN_WIDTH}
-          width={SCREEN_HEIGHT}
-          play={isPlaying}
-          videoId={video.videoId}
-          onChangeState={onStateChange}
-          webViewProps={{
-            renderToHardwareTextureAndroid: true,
-          }}
-        />
+        <View style={styles.youtubeContainer}>
+          <YoutubePlayer
+            height={videoHeight}
+            width={videoWidth}
+            play={isPlaying}
+            videoId={video.videoId}
+            onChangeState={onStateChange}
+            webViewProps={{
+              renderToHardwareTextureAndroid: true,
+            }}
+          />
+        </View>
       );
     } else {
       return (
         <Video
           ref={videoRef}
-          style={styles.video}
+          style={[
+            styles.video,
+            isFullscreen ? styles.fullscreenVideo : styles.controlsVideo,
+          ]}
           source={{ uri: video.videoUrl }}
-          useNativeControls={false}
+          useNativeControls={true}
           resizeMode="contain"
           isLooping={false}
           shouldPlay={isPlaying}
-          onPlaybackStatusUpdate={(status) => {
-            setCurrentTime(status.positionMillis / 1000);
-            setDuration(status.durationMillis / 1000);
-          }}
         />
       );
     }
   };
 
   return (
-    <TouchableOpacity
-      style={styles.container}
-      onPress={handleVideoPress}
-      activeOpacity={1}
-    >
-      {/* Base Video Layer - Always visible */}
-      <View style={styles.videoContainer}>{renderVideoPlayer()}</View>
-
-      {/* Controls Overlay Layer - Shown/hidden based on state */}
+    <View style={styles.container}>
+      <TouchableOpacity
+        style={styles.videoWrapper}
+        onPress={handleVideoPress}
+        activeOpacity={1}
+      >
+        {renderVideoPlayer()}
+      </TouchableOpacity>
 
       {showControls && (
         <View style={styles.controlsOverlay}>
-          {/* Top bar with back button, title, and actions */}
           <View style={styles.topBar}>
             <TouchableOpacity onPress={onBackPress}>
               <MaterialIcons name="arrow-back" size={24} color="white" />
             </TouchableOpacity>
             <View style={styles.titleContainer}>
               <Text style={styles.title}>{video.title}</Text>
-              <Text style={styles.channelName}>Matu Aprendiendo a Hablar</Text>
+              <Text style={styles.channelName}>
+                {video.channelName || "Channel Name"}
+              </Text>
             </View>
             <View style={styles.topBarRight}>
               <MaterialIcons
@@ -116,37 +104,9 @@ export default function VideoPlayingFullScreen({
               <MaterialIcons name="more-vert" size={24} color="white" />
             </View>
           </View>
-
-          {/* Center play/pause button */}
-          <TouchableOpacity
-            style={styles.centerButton}
-            onPress={togglePlayPause}
-          >
-            <MaterialIcons
-              name={isPlaying ? "pause" : "play-arrow"}
-              size={50}
-              color="white"
-            />
-          </TouchableOpacity>
-
-          {/* Bottom progress bar and time display */}
-          <View style={styles.bottomBar}>
-            <View style={styles.progressBar}>
-              <View
-                style={[
-                  styles.progress,
-                  { width: `${(currentTime / duration) * 100}%` },
-                ]}
-              />
-            </View>
-            <View style={styles.timeContainer}>
-              <Text style={styles.timeText}>{formatTime(currentTime)}</Text>
-              <Text style={styles.timeText}>{formatTime(duration)}</Text>
-            </View>
-          </View>
         </View>
       )}
-    </TouchableOpacity>
+    </View>
   );
 }
 
@@ -154,19 +114,24 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#000",
-    position: "relative",
   },
-  videoContainer: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+  videoWrapper: {
+    flex: 1,
+  },
+  youtubeContainer: {
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: "#000",
   },
   video: {
     width: "100%",
+    height: "100%",
+  },
+  fullscreenVideo: {
+    aspectRatio: 16 / 9,
+  },
+  controlsVideo: {
     aspectRatio: 16 / 9,
   },
   controlsOverlay: {
@@ -174,10 +139,7 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-    bottom: 0,
     backgroundColor: "rgba(0,0,0,0.5)",
-    justifyContent: "space-between",
-    zIndex: 1,
   },
   topBar: {
     flexDirection: "row",
@@ -203,29 +165,5 @@ const styles = StyleSheet.create({
   },
   icon: {
     marginRight: 16,
-  },
-  centerButton: {
-    alignSelf: "center",
-    backgroundColor: "transparent",
-  },
-  bottomBar: {
-    padding: 16,
-  },
-  progressBar: {
-    height: 4,
-    backgroundColor: "rgba(255,255,255,0.3)",
-    marginBottom: 8,
-  },
-  progress: {
-    height: "100%",
-    backgroundColor: "red",
-  },
-  timeContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  timeText: {
-    color: "white",
-    fontSize: 14,
   },
 });

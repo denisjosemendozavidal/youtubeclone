@@ -1,11 +1,12 @@
-import { StyleSheet, View, SafeAreaView, Dimensions } from "react-native";
+import { StyleSheet, View, SafeAreaView } from "react-native";
 import { useState, useEffect } from "react";
 import * as ScreenOrientation from "expo-screen-orientation";
 import VideoPlayingFullScreen from "../components/VideoPlayingFullScreen";
 import OtherVideos from "../components/OtherVideos";
 
 export default function VideoPlayer({ route, navigation }) {
-  const { video } = route.params;
+  const { video: initialVideo } = route.params;
+  const [video, setVideo] = useState(initialVideo);
   const [showControls, setShowControls] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(true);
 
@@ -44,7 +45,7 @@ export default function VideoPlayer({ route, navigation }) {
         </View>
         {showControls && (
           <View style={styles.otherVideosSection}>
-            <OtherVideos />
+            <OtherVideos currentVideoId={video.id} />
           </View>
         )}
       </View>
@@ -68,10 +69,10 @@ const styles = StyleSheet.create({
     height: "100%",
   },
   videoWithControls: {
-    height: "80%", // Video takes 80% of the screen when controls are shown
+    height: "80%",
   },
   otherVideosSection: {
-    height: "20%", // "Up next" section takes 20% of the screen
-    backgroundColor: "white",
+    height: "20%",
+    backgroundColor: "#000",
   },
 });
