@@ -1,13 +1,27 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
+import { useNavigation, CommonActions } from "@react-navigation/native";
 
 export default function Footer() {
+  // Get the navigation object to use for screen transitions
+  const navigation = useNavigation();
+
+  // Function to handle the home navigation
+  const handleHomePress = () => {
+    navigation.dispatch(
+      CommonActions.reset({
+        index: 0,
+        routes: [{ name: "Home" }],
+      })
+    );
+  };
+
   return (
     <View style={styles.footer}>
-      <View style={styles.iconContainer}>
+      <TouchableOpacity style={styles.iconContainer} onPress={handleHomePress}>
         <Feather name="home" size={24} color="white" />
         <Text style={styles.iconText}>Home</Text>
-      </View>
+      </TouchableOpacity>
 
       <View style={styles.iconContainer}>
         <Feather name="search" size={24} color="white" />
