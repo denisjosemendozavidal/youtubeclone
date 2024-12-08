@@ -26,4 +26,13 @@ export const videos = [
     videoId: "nMmIBlRl8ls",
     platform: "youtube",
   },
+  {
+    id: "4",
+    title:
+      "Special Song for Bora 🦄🌈 Rainbow Unicorn +more | Sing Along Bebefinn | Nursery Rhymes For Kids",
+    thumbnail: "url-to-thumbnail",
+    duration: "14:50",
+    videoId: "sQxYEph0vX4",
+    platform: "youtube",
+  },
 ];

@@ -1,10 +1,14 @@
 import React from "react";
-import { StyleSheet, View, ScrollView, Dimensions } from "react-native";
+import { StyleSheet, View, ScrollView } from "react-native";
 import VideoCard from "./VideoCard";
 import { videos } from "../data/mockData";
 
-export default function OtherVideos({ currentVideoId }) {
-  // Filter out the currently playing video from recommendations
+export default function OtherVideos({
+  currentVideoId,
+  onVideoSelect,
+  inVideoPlayer,
+}) {
+  // Filter out the currently playing video
   const recommendedVideos = videos.filter(
     (video) => video.id !== currentVideoId
   );
@@ -17,16 +21,17 @@ export default function OtherVideos({ currentVideoId }) {
         contentContainerStyle={styles.scrollContent}
       >
         {recommendedVideos.map((video) => (
-          <View key={video.id} style={styles.cardWrapper}>
-            <VideoCard video={video} />
-          </View>
+          <VideoCard
+            key={video.id}
+            video={video}
+            onVideoSelect={onVideoSelect}
+            inVideoPlayer={inVideoPlayer}
+          />
         ))}
       </ScrollView>
     </View>
   );
 }
-
-const { width } = Dimensions.get("window");
 
 const styles = StyleSheet.create({
   container: {
@@ -35,10 +40,5 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 8,
-    paddingVertical: 4,
-  },
-  cardWrapper: {
-    width: width * 0.4, // Each card takes 40% of screen width
-    marginRight: 8,
   },
 });

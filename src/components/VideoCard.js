@@ -2,28 +2,35 @@ import { StyleSheet, Text, View, Image, TouchableOpacity } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 
-export default function VideoCard({ video }) {
+export default function VideoCard({ video, onVideoSelect, inVideoPlayer }) {
   const navigation = useNavigation();
 
-  // Function to get the correct thumbnail URL based on video platform
   const getThumbnailUrl = () => {
     if (video.platform === "youtube") {
       return `https://img.youtube.com/vi/${video.videoId}/hqdefault.jpg`;
     }
-    // For other platforms, use the provided thumbnail URL
     return video.thumbnail;
   };
 
   const handlePress = () => {
-    // Add a small delay to give visual feedback of the press
-    setTimeout(() => {
-      navigation.navigate("VideoPlayer", { video });
-    }, 50);
+    // If we're in the video player, use the onVideoSelect handler
+    if (inVideoPlayer && onVideoSelect) {
+      onVideoSelect(video);
+    } else {
+      // Otherwise, use the original navigation behavior
+      setTimeout(() => {
+        navigation.navigate("VideoPlayer", { video });
+      }, 50);
+    }
   };
 
   return (
     <TouchableOpacity
-      style={styles.card}
+      style={[
+        styles.card,
+        // Adjust styling if we're in the video player
+        inVideoPlayer && styles.inPlayerCard,
+      ]}
       onPress={handlePress}
       activeOpacity={0.7}
     >
@@ -44,21 +51,21 @@ export default function VideoCard({ video }) {
         <View style={styles.duration}>
           <Text style={styles.durationText}>{video.duration}</Text>
         </View>
-        <TouchableOpacity
-          style={styles.menuIconContainer}
-          onPress={(e) => {
-            e.stopPropagation();
-            // Here you could add a menu with options like:
-            // - Add to playlist
-            // - Share
-            // - Report
-            // For now, we'll just prevent the card press
-          }}
-        >
-          <MaterialIcons name="more-vert" size={24} color="white" />
-        </TouchableOpacity>
+        {!inVideoPlayer && ( // Only show menu icon when not in video player
+          <TouchableOpacity
+            style={styles.menuIconContainer}
+            onPress={(e) => {
+              e.stopPropagation();
+            }}
+          >
+            <MaterialIcons name="more-vert" size={24} color="white" />
+          </TouchableOpacity>
+        )}
       </View>
-      <Text style={styles.title} numberOfLines={2}>
+      <Text
+        style={[styles.title, inVideoPlayer && styles.inPlayerTitle]}
+        numberOfLines={2}
+      >
         {video.title}
       </Text>
     </TouchableOpacity>
@@ -118,5 +125,13 @@ const styles = StyleSheet.create({
     padding: 4,
     backgroundColor: "rgba(0,0,0,0.3)",
     borderRadius: 12,
+  },
+  inPlayerCard: {
+    margin: 4, // Smaller margins for the horizontal list
+    width: 200, // Fixed width for horizontal scrolling
+  },
+  inPlayerTitle: {
+    fontSize: 12, // Slightly smaller text for in-player view
+    padding: 8,
   },
 });

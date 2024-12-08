@@ -5,8 +5,9 @@ import VideoPlayingFullScreen from "../components/VideoPlayingFullScreen";
 import OtherVideos from "../components/OtherVideos";
 
 export default function VideoPlayer({ route, navigation }) {
+  // Initialize with the video passed through navigation
   const { video: initialVideo } = route.params;
-  const [video, setVideo] = useState(initialVideo);
+  const [currentVideo, setCurrentVideo] = useState(initialVideo);
   const [showControls, setShowControls] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(true);
 
@@ -26,6 +27,13 @@ export default function VideoPlayer({ route, navigation }) {
     navigation.goBack();
   };
 
+  // New function to handle video selection
+  const handleVideoSelect = (newVideo) => {
+    setCurrentVideo(newVideo); // Update the current video
+    setShowControls(false); // Hide the controls
+    setIsFullscreen(true); // Return to fullscreen mode
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.contentContainer}>
@@ -36,7 +44,7 @@ export default function VideoPlayer({ route, navigation }) {
           ]}
         >
           <VideoPlayingFullScreen
-            video={video}
+            video={currentVideo}
             showControls={showControls}
             isFullscreen={isFullscreen}
             onVideoPress={handleVideoPress}
@@ -45,7 +53,11 @@ export default function VideoPlayer({ route, navigation }) {
         </View>
         {showControls && (
           <View style={styles.otherVideosSection}>
-            <OtherVideos currentVideoId={video.id} />
+            <OtherVideos
+              currentVideoId={currentVideo.id}
+              onVideoSelect={handleVideoSelect}
+              inVideoPlayer={true} // New prop to modify VideoCard behavior
+            />
           </View>
         )}
       </View>

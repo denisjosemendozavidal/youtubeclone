@@ -18,10 +18,10 @@ export default function Footer() {
 
   return (
     <View style={styles.footer}>
-      <TouchableOpacity style={styles.iconContainer} onPress={handleHomePress}>
+      <View style={styles.iconContainer}>
         <Feather name="home" size={24} color="white" />
         <Text style={styles.iconText}>Home</Text>
-      </TouchableOpacity>
+      </View>
 
       <View style={styles.iconContainer}>
         <Feather name="search" size={24} color="white" />
